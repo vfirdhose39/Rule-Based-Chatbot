@@ -1,0 +1,100 @@
+import random
+import datetime
+
+class RuleBasedChatBot:
+    def __init__(self):
+        # Define rules (intents → patterns & responses)
+        self.rules = {
+            "greeting": {
+                "patterns": ["hello", "hi", "hey", "good morning", "good evening"],
+                "responses": ["Hello! How can I help you?", "Hi there!", "Hey! Glad you are here."]
+            },
+            "name": {
+                "patterns": ["what is your name", "who are you"],
+                "responses": ["I'm a Rule-Based ChatBot.", "You can call me ChatBot!"]
+            },
+            "how": {
+                "patterns": ["how are you", "how is it going"],
+                "responses": ["I'm doing great, thanks!", "All good here. How about you?"]
+            },
+            "bye": {
+                "patterns": ["bye", "goodbye", "see you"],
+                "responses": ["Goodbye! Have a nice day!", "See you soon! Take care."]
+            },
+            "help": {
+                "patterns": ["help", "can you help me", "i need assistance"],
+                "responses": ["Sure! Tell me what you need help with.", "I’m here to assist you."]
+            },
+            "time": {
+                "patterns": ["what time is it", "tell me the time", "current time"],
+                "responses": []  # handled separately
+            },
+            "date": {
+                "patterns": ["what is the date", "today's date", "current date"],
+                "responses": []  # handled separately
+            },
+            "joke": {
+                "patterns": ["tell me a joke", "make me laugh"],
+                "responses": [
+                    "Why don’t skeletons fight each other? They don’t have the guts!",
+                    "I told my computer I needed a break, and now it won’t stop sending me Kit-Kats.",
+                    "Why did the developer go broke? Because he used up all his cache."
+                ]
+            }
+        }
+
+        # Default fallback responses
+        self.fallback_responses = [
+            "Sorry, I don’t understand.",
+            "Can you try saying that differently?",
+            "I'm not trained for this yet."
+        ]
+
+        # Log file
+        self.log_file = "chat_history.txt"
+        with open(self.log_file, "w") as f:
+            f.write("---- ChatBot Conversation Log ----\n\n")
+
+    def log_conversation(self, user_input, bot_response):
+        """Save conversation to a file"""
+        with open(self.log_file, "a") as f:
+            f.write(f"You: {user_input}\n")
+            f.write(f"Bot: {bot_response}\n\n")
+
+    def get_response(self, user_input):
+        user_input = user_input.lower()
+
+        # Check each intent
+        for intent, data in self.rules.items():
+            if any(pattern in user_input for pattern in data["patterns"]):
+                # Handle time intent
+                if intent == "time":
+                    return f"The current time is {datetime.datetime.now().strftime('%H:%M:%S')}."
+                # Handle date intent
+                elif intent == "date":
+                    return f"Today's date is {datetime.datetime.now().strftime('%Y-%m-%d')}."
+                else:
+                    return random.choice(data["responses"])
+
+        # If no rule matches → fallback
+        return random.choice(self.fallback_responses)
+
+
+def main():
+    print("🤖 ChatBot: Hello! I'm a Rule-Based ChatBot. Type 'quit' to exit.")
+    bot = RuleBasedChatBot()
+
+    while True:
+        user_input = input("You: ")
+        if user_input.lower() == "quit":
+            print("🤖 ChatBot: Goodbye! 👋")
+            break
+        response = bot.get_response(user_input)
+        print("🤖 ChatBot:", response)
+
+        # Save to log
+        bot.log_conversation(user_input, response)
+
+
+if __name__ == "__main__":
+    main()
